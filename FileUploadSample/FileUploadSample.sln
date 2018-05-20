@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27428.2043
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileUploadSample", "FileUploadSample.csproj", "{477F6543-2913-4A2F-8938-DD51C114051A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileUploadSample.Tests", "..\FileUploadSample.Tests\FileUploadSample.Tests.csproj", "{00B739B5-8B90-4868-A763-C5016E343EA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{477F6543-2913-4A2F-8938-DD51C114051A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{477F6543-2913-4A2F-8938-DD51C114051A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{477F6543-2913-4A2F-8938-DD51C114051A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00B739B5-8B90-4868-A763-C5016E343EA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00B739B5-8B90-4868-A763-C5016E343EA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00B739B5-8B90-4868-A763-C5016E343EA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00B739B5-8B90-4868-A763-C5016E343EA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
