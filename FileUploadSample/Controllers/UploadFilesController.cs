@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -46,5 +49,50 @@ namespace FileUploadSample.Controllers
             return Ok(new { count = files.Count, size });
         }
         #endregion
+
+
+        [HttpGet]
+        public HttpResponseMessage GetFile()
+        {
+            var stream = new MemoryStream();
+            // processing the stream.
+
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(stream.ToArray())
+            };
+
+            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") {
+                    FileName = @"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp"
+            };
+
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            return result;
+        }
+
+
+
+        //[HttpGet("{id}")]
+        //public async Task<IActionResult> Download(string id)
+        //{
+        //    var stream = new StreamContent(File.OpenRead(@"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp"));
+        //    var stream2 = await stream.ReadAsByteArrayAsync();
+        //    //var response = File.r(stream2, "application/octet-stream"); // FileStreamResult
+        //    var response = new FileStreamResult(stream2, "application/octet-stream");
+        //    return response;
+        //}
+
+        public FileResult TestDownload()
+        {
+            HttpContext.Response.ContentType = "application/pdf";
+            FileContentResult result = new FileContentResult(System.IO.File.ReadAllBytes(@"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp"), "application/octet-stream")
+            {
+                FileDownloadName = @"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp"
+            };
+
+            return result;
+        }
     }
+
 }

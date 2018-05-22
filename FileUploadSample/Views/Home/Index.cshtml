@@ -38,3 +38,11 @@
         <a href="@file.FullName">@file.FileName</a>
     }
 </div>
+<h3>Download file</h3>
+<form method="get" asp-controller="UploadFiles" asp-action="TestDownload">
+    <div class="form-group">
+        <div class="col-md-10">
+            <input type="submit" value="Download a file" />
+        </div>
+    </div>
+</form>
