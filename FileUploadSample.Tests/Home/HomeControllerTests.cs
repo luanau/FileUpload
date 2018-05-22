@@ -23,7 +23,7 @@ namespace FileUploadSample.Tests.Home
         public async void UnitTest1()
         {
             var conf = new Mock<IConfiguration>();
-            //conf.Setup(x => x.GetValue<string>(It.IsAny<string>())).Returns(value: "abc");
+            conf.Setup(x => x["UploadFolder"]).Returns(value: "TestUploadFolder");
 
             var env = new Mock<IHostingEnvironment>();
             env.SetupGet(x => x.WebRootPath).Returns(Path.GetTempPath());

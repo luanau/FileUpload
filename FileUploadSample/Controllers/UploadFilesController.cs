@@ -28,7 +28,7 @@ namespace FileUploadSample.Controllers
         {
             long size = files.Sum(f => f.Length);
 
-            var uploadFolder = Path.Combine(_env.WebRootPath, Configuration.GetValue<string>("UploadFolder"));
+            var uploadFolder = Path.Combine(_env.WebRootPath, Configuration["UploadFolder"]);
 
             foreach (var formFile in files)
             {
@@ -72,26 +72,101 @@ namespace FileUploadSample.Controllers
         }
 
 
+        /// <summary>
+        /// Two parameters File opens it
+        /// Three parameters File download it
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> Download(string id)
+        {
+            var path = @"C:\Users\luan_\Downloads\Premium_Dancer.png";
+            var image = System.IO.File.OpenRead(path);
+            return await Task.Run(() => File(image, GetContentType(path)));
 
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> Download(string id)
-        //{
-        //    var stream = new StreamContent(File.OpenRead(@"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp"));
-        //    var stream2 = await stream.ReadAsByteArrayAsync();
-        //    //var response = File.r(stream2, "application/octet-stream"); // FileStreamResult
-        //    var response = new FileStreamResult(stream2, "application/octet-stream");
-        //    return response;
-        //}
+        }
 
+        /// <summary>
+        /// This one works to download a file
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> Download2(string filename)
+        {
+            //if (filename == null)
+            //    return Content("filename not present");
+
+            //var path = Path.Combine(
+            //               Directory.GetCurrentDirectory(),
+            //               "wwwroot", filename);
+            //var path = @"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp";
+            var path = "C:\\dotNetDev\\FileUpload\\FileUploadSample\\wwwroot\\uploads\\U16-16-18_Scholars.pdf";
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(path, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+            return File(memory, GetContentType(path)); // Open in browser
+            //return File(memory, GetContentType(path), Path.GetFileName(path)); // Download
+        }
+
+        /// <summary>
+        /// This just download the file
+        /// </summary>
+        /// <returns></returns>
         public FileResult TestDownload()
         {
+            var path = "C:\\dotNetDev\\FileUpload\\FileUploadSample\\wwwroot\\uploads\\U16-16-18_Scholars.pdf";
+
             HttpContext.Response.ContentType = "application/pdf";
-            FileContentResult result = new FileContentResult(System.IO.File.ReadAllBytes(@"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp"), "application/octet-stream")
+            FileContentResult result = new FileContentResult(System.IO.File.ReadAllBytes(path), "application/octet-stream")
             {
-                FileDownloadName = @"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp"
+                FileDownloadName = "Cool16.pdf"
             };
 
             return result;
+        }
+
+        /// <summary>
+        /// This one open image fine but in current tab, not new tab
+        /// To open image in a new tab access this action via an anchor with blank target:
+        ///     <a href="UploadFiles\Download3" target="_blank">PDF File link</a>
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> Download3()
+        {
+            var path = @"C:\Users\luan_\Downloads\BuddhaTruc.jpg";
+            var image = System.IO.File.OpenRead(path);
+            return await Task.Run(() => File(image, "image/jpeg"));
+        }
+
+        private string GetContentType(string path)
+        {
+            var types = GetMimeTypes();
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            return types[ext];
+        }
+
+        private Dictionary<string, string> GetMimeTypes()
+        {
+            return new Dictionary<string, string>
+            {
+                {".txt", "text/plain"},
+                {".pdf", "application/pdf"},
+                {".doc", "application/vnd.ms-word"},
+                {".docx", "application/vnd.ms-word"},
+                {".xls", "application/vnd.ms-excel"},
+                {".xlsx", "application/vnd.openxmlformats officedocument.spreadsheetml.sheet"},
+                {".png", "image/png"},
+                {".jpg", "image/jpeg"},
+                {".jpeg", "image/jpeg"},
+                {".gif", "image/gif"},
+                {".csv", "text/csv"}
+            };
         }
     }
 
