@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,10 +10,12 @@ namespace FileUploadSample.Controllers
     public class HomeController : Controller
     {
         private IHostingEnvironment Env { get; set; }
+        private IConfiguration Configuration { get; set; }
 
-        public HomeController(IHostingEnvironment env)
+        public HomeController(IHostingEnvironment env, IConfiguration configuration)
         {
             Env = env;
+            Configuration = configuration;
         }
         public IActionResult Index()
         {
@@ -31,7 +34,7 @@ namespace FileUploadSample.Controllers
             StringBuilder sb = new StringBuilder();
             FileInfo[] files;
 
-            dir = new DirectoryInfo(Path.Combine(Env.WebRootPath, "documents"));
+            dir = new DirectoryInfo(Path.Combine(Env.WebRootPath, Configuration["UploadFolder"]));
             files = dir.GetFiles();
             foreach (FileInfo f in files)
             {
@@ -47,7 +50,7 @@ namespace FileUploadSample.Controllers
             StringBuilder sb = new StringBuilder();
             FileInfo[] files;
 
-            var dirName = Path.Combine(Env.WebRootPath, "documents");
+            var dirName = Path.Combine(Env.WebRootPath, Configuration["UploadFolder"]);
             dir = new DirectoryInfo(dirName);
             if (!dir.Exists)
             {
