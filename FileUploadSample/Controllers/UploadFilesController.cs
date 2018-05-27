@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -22,32 +23,39 @@ namespace FileUploadSample.Controllers
             _env = env;
             Configuration = configuration;
         }
-        #region snippet1
+        #region UploadFile
+
         [HttpPost("UploadFiles")]
         public async Task<IActionResult> Post(List<IFormFile> files)
         {
             long size = files.Sum(f => f.Length);
 
             var uploadFolder = Path.Combine(_env.WebRootPath, Configuration["UploadFolder"]);
+            var tasks = files.Select(x => CopyFile(uploadFolder,x).ContinueWith(RecordUploadedFile)).ToList();
+            await Task.WhenAll(tasks);
 
-            foreach (var formFile in files)
-            {
-                if (formFile.Length > 0)
-                {
-                    var filePath = Path.Combine(uploadFolder, formFile.FileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await formFile.CopyToAsync(stream);
-                    }
-                }
-            }
-
-            // process uploaded files
             // Don't rely on or trust the FileName property without validation.
 
             return Ok(new { count = files.Count, size });
         }
+
+        private async Task<IFormFile> CopyFile(string uploadFolder, IFormFile formFile)
+        {
+            var filePath = Path.Combine(uploadFolder, formFile.FileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await formFile.CopyToAsync(stream);
+            }
+
+            return formFile;
+        }
+
+        private void RecordUploadedFile(Task<IFormFile> prev)
+        {
+            Console.WriteLine(prev.Result.FileName);
+        }
+
         #endregion
 
 
