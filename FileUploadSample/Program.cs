@@ -6,7 +6,7 @@ namespace FileUploadSample
 {
     public class Program
     {
-        public static IConfiguration Configuration { get; set; }
+        //public static IConfiguration Configuration { get; set; }
 
         public static void Main(string[] args)
         {

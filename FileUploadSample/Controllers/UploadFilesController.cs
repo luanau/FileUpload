@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +30,7 @@ namespace FileUploadSample.Controllers
         #region Upload Files
 
         [HttpPost("UploadFiles")]
-        public async Task<IActionResult> Post(List<IFormFile> files)
+        public async Task<IActionResult> UploadFiles(List<IFormFile> files)
         {
             long size = files.Sum(f => f.Length);
 
@@ -65,28 +62,6 @@ namespace FileUploadSample.Controllers
 
         #endregion
 
-
-        [HttpGet]
-        public HttpResponseMessage GetFile()
-        {
-            var stream = new MemoryStream();
-            // processing the stream.
-
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new ByteArrayContent(stream.ToArray())
-            };
-
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") {
-                    FileName = @"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp"
-            };
-
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            return result;
-        }
-
-
         /// <summary>
         /// Two parameters File opens it
         /// Three parameters File download it
@@ -109,7 +84,8 @@ namespace FileUploadSample.Controllers
         [HttpGet]
         public async Task<IActionResult> Download2(string filename)
         {
-            var path = "C:\\dotNetDev\\FileUpload\\FileUploadSample\\wwwroot\\uploads\\U16-16-18_Scholars.pdf";
+            var path = Path.Combine(UploadFolder, filename);
+
             var memory = new MemoryStream();
             using (var stream = new FileStream(path, FileMode.Open))
             {
@@ -120,22 +96,6 @@ namespace FileUploadSample.Controllers
             //return File(memory,  MimeTypeMap.GetMimeType(Path.GetExtension(path)), Path.GetFileName(path)); // Download
         }
 
-        /// <summary>
-        /// This just download the file
-        /// </summary>
-        /// <returns></returns>
-        public FileResult TestDownload(string fileName)
-        {
-            var path = Path.Combine(UploadFolder, fileName);
-
-            HttpContext.Response.ContentType = "application/pdf";
-            FileContentResult result = new FileContentResult(System.IO.File.ReadAllBytes(path), "application/octet-stream")
-            {
-                FileDownloadName = fileName
-            };
-
-            return result;
-        }
 
         /// <summary>
         /// To open image in a new tab access this action via an anchor with blank target:
@@ -150,6 +110,13 @@ namespace FileUploadSample.Controllers
             return await Task.Run(() => File(image, MimeTypeMap.GetMimeType(Path.GetExtension(path))));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Delete(string fileName)
+        {
+            var path = Path.Combine(UploadFolder, fileName);
+            await Task.Run(() => System.IO.File.Delete(path));
+            return Ok(new { message = fileName + " deleted!" });
+        }
     }
 
 }

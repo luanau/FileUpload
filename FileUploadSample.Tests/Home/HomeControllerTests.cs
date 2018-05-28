@@ -38,7 +38,7 @@ namespace FileUploadSample.Tests.Home
                 var formFile = new FormFile(stream , 0, stream.Length, "name", "filename");
 
                 //Act
-                var result = await controller.Post(new List<IFormFile> { formFile });
+                var result = await controller.UploadFiles(new List<IFormFile> { formFile });
                 var okResult = result as OkObjectResult;
 
                 var data = okResult.Value;
