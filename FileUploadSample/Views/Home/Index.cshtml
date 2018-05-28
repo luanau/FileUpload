@@ -29,26 +29,13 @@
     <li><a asp-controller="Streaming" asp-action="Index">Streaming Upload Sample</a></li>
 </ul>
 <h3>Link to files</h3>
-<ul>
-    <li><a href="C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp">File link</a></li>
-    <li><a href="UploadFiles\Download2">PDF File link</a></li>
-    <li><a href="UploadFiles\Download3" target="_blank">Buddha</a></li>
-    <li><a href="UploadFiles\Download" target="_blank">Premium dancer</a></li>
-    <li><a href="UploadFiles\TestDownload" target="_blank">TestDownload</a></li>
-
-
-</ul>
 <div id="FileLinks">
     @foreach (FileLink file in myFiles)
     {
-        <a href="@file.FullName">@file.FileName</a>
+        <div class="row">
+            <span class="col-md-4">@file.FileName</span>
+            <a href="UploadFiles\OpenFile?fileName=@file.FileName" class="col-md-1 btn btn-default" target="_blank">Open</a>
+            <a href="UploadFiles\Download?fileName=@file.FileName" target="_blank" class="col-md-1 btn btn-default ml-1">Download</a>
+        </div>
     }
 </div>
-<h3>Download file</h3>
-<form method="get" asp-controller="UploadFiles" asp-action="Download3">
-    <div class="form-group">
-        <div class="col-md-10">
-            <input type="submit" value="Download a file" />
-        </div>
-    </div>
-</form>

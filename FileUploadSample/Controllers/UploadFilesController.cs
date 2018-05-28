@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using MimeTypes;
+
 
 namespace FileUploadSample.Controllers
 {
@@ -18,12 +20,17 @@ namespace FileUploadSample.Controllers
         private IHostingEnvironment _env;
         IConfiguration Configuration;
 
+        public string UploadFolder { get; set; }
+
         public UploadFilesController(IHostingEnvironment env, IConfiguration configuration)
         {
             _env = env;
             Configuration = configuration;
+            UploadFolder = Path.Combine(_env.WebRootPath, Configuration["UploadFolder"]);
+
         }
-        #region UploadFile
+
+        #region Upload Files
 
         [HttpPost("UploadFiles")]
         public async Task<IActionResult> Post(List<IFormFile> files)
@@ -36,7 +43,7 @@ namespace FileUploadSample.Controllers
 
             // Don't rely on or trust the FileName property without validation.
 
-            return Ok(new { count = files.Count, size });
+            return Ok(new { count = files.Count, size, names = files.Select(x => x.FileName) });
         }
 
         private async Task<IFormFile> CopyFile(string uploadFolder, IFormFile formFile)
@@ -87,12 +94,11 @@ namespace FileUploadSample.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> Download(string id)
+        public async Task<IActionResult> Download(string fileName)
         {
-            var path = @"C:\Users\luan_\Downloads\Premium_Dancer.png";
+            var path = Path.Combine(UploadFolder, fileName);
             var image = System.IO.File.OpenRead(path);
-            return await Task.Run(() => File(image, GetContentType(path)));
-
+            return await Task.Run(() => File(image, MimeTypeMap.GetMimeType(Path.GetExtension(path)), fileName));
         }
 
         /// <summary>
@@ -103,13 +109,6 @@ namespace FileUploadSample.Controllers
         [HttpGet]
         public async Task<IActionResult> Download2(string filename)
         {
-            //if (filename == null)
-            //    return Content("filename not present");
-
-            //var path = Path.Combine(
-            //               Directory.GetCurrentDirectory(),
-            //               "wwwroot", filename);
-            //var path = @"C:\Users\luan_\AppData\Local\Temp\tmp9CC5.tmp";
             var path = "C:\\dotNetDev\\FileUpload\\FileUploadSample\\wwwroot\\uploads\\U16-16-18_Scholars.pdf";
             var memory = new MemoryStream();
             using (var stream = new FileStream(path, FileMode.Open))
@@ -117,65 +116,40 @@ namespace FileUploadSample.Controllers
                 await stream.CopyToAsync(memory);
             }
             memory.Position = 0;
-            return File(memory, GetContentType(path)); // Open in browser
-            //return File(memory, GetContentType(path), Path.GetFileName(path)); // Download
+            return File(memory, MimeTypeMap.GetMimeType(Path.GetExtension(path))); // Open in browser
+            //return File(memory,  MimeTypeMap.GetMimeType(Path.GetExtension(path)), Path.GetFileName(path)); // Download
         }
 
         /// <summary>
         /// This just download the file
         /// </summary>
         /// <returns></returns>
-        public FileResult TestDownload()
+        public FileResult TestDownload(string fileName)
         {
-            var path = "C:\\dotNetDev\\FileUpload\\FileUploadSample\\wwwroot\\uploads\\U16-16-18_Scholars.pdf";
+            var path = Path.Combine(UploadFolder, fileName);
 
             HttpContext.Response.ContentType = "application/pdf";
             FileContentResult result = new FileContentResult(System.IO.File.ReadAllBytes(path), "application/octet-stream")
             {
-                FileDownloadName = "Cool16.pdf"
+                FileDownloadName = fileName
             };
 
             return result;
         }
 
         /// <summary>
-        /// This one open image fine but in current tab, not new tab
         /// To open image in a new tab access this action via an anchor with blank target:
         ///     <a href="UploadFiles\Download3" target="_blank">PDF File link</a>
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> Download3()
+        public async Task<IActionResult> OpenFile(string fileName)
         {
-            var path = @"C:\Users\luan_\Downloads\BuddhaTruc.jpg";
+            var path = Path.Combine(UploadFolder, fileName);
             var image = System.IO.File.OpenRead(path);
-            return await Task.Run(() => File(image, "image/jpeg"));
+            return await Task.Run(() => File(image, MimeTypeMap.GetMimeType(Path.GetExtension(path))));
         }
 
-        private string GetContentType(string path)
-        {
-            var types = GetMimeTypes();
-            var ext = Path.GetExtension(path).ToLowerInvariant();
-            return types[ext];
-        }
-
-        private Dictionary<string, string> GetMimeTypes()
-        {
-            return new Dictionary<string, string>
-            {
-                {".txt", "text/plain"},
-                {".pdf", "application/pdf"},
-                {".doc", "application/vnd.ms-word"},
-                {".docx", "application/vnd.ms-word"},
-                {".xls", "application/vnd.ms-excel"},
-                {".xlsx", "application/vnd.openxmlformats officedocument.spreadsheetml.sheet"},
-                {".png", "image/png"},
-                {".jpg", "image/jpeg"},
-                {".jpeg", "image/jpeg"},
-                {".gif", "image/gif"},
-                {".csv", "text/csv"}
-            };
-        }
     }
 
 }
